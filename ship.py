@@ -12,6 +12,8 @@ class Ship:
         self.rect = self.image.get_rect()
 
         self.rect.midbottom = self.screen_rect.midbottom
+        print('const')
+        print(self.rect)
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
         self.moving_right = False
@@ -32,6 +34,11 @@ class Ship:
 
         self.rect.x = self.x
         self.rect.y = self.y
+
+    def center_ship(self):
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
 
     def blitme(self):
         # wyswietalnie statku na ekranie

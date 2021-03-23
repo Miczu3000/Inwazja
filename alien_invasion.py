@@ -1,7 +1,9 @@
 import sys
+from time import sleep
 
 import pygame
 from settings import Settings
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -19,18 +21,24 @@ class AlienInvasion:
 
         pygame.display.set_caption("Inwazja obcych")
 
+        self.stats = GameStats(self)
+
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        
 
         self._create_fleet()
 
     def run_game(self):
         while True:
             self._check_events()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
+            if self.stats.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_aliens()
+                self._game_over()
+            
             self._update_screen()
 
     def _check_events(self):
@@ -81,12 +89,31 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
-        # print(len(self.bullets))
+        self._check_bullet_alien_collision()
+      
+
+    def _check_bullet_alien_collision(self):
+        
+
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        if collisions:
+            self.stats.dead_aliens +=1
+            print(f"Zabito: {self.stats.dead_aliens}")     
+
+        if not self.aliens:
+            self.bullets.empty()
+            self._create_fleet()
 
     def _update_aliens(self):
         self._check_fleet_edges()
         self.aliens.update()
 
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self.stats.ship_dead += 1
+            print(f"Poniesiono {self.stats.ship_dead} śmierci")
+            self._ship_hit()
+            #print("ALERT! Statek został trafiony!!!")
+        self._check_aliens_bottom()
 
     def _create_fleet(self):
         alien = Alien(self)
@@ -121,6 +148,32 @@ class AlienInvasion:
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
 
+    def _ship_hit(self):
+        if self.stats.ships_left > 0:
+            self.stats.ships_left -= 1
+            print(self.stats.ships_left)
+
+            self.aliens.empty()
+            self.bullets.empty()
+
+            self._create_fleet()
+            self.ship.center_ship()
+
+            sleep(0.5)
+        else:
+            self.stats.game_active = False
+
+    def _check_aliens_bottom(self):
+        screen_rect = self.screen.get_rect()
+        for aline in self.aliens.sprites():
+            if aline.rect.bottom >= screen_rect.bottom:
+                self._ship_hit()
+                break
+            
+    def _game_over(self):
+        if self.stats.ship_dead > 3:
+            print("Game over")             
+
     def _update_screen(self):
 
         self.screen.fill(self.settings.bg_color)
@@ -132,6 +185,7 @@ class AlienInvasion:
         self.aliens.draw(self.screen)
 
         pygame.display.flip()
+
 
 
 if __name__ == '__main__':
