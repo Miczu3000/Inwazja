@@ -27,7 +27,6 @@ class AlienInvasion:
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
-        
 
         self._create_fleet()
         self.play_button = Button(self, "Gra")
@@ -40,7 +39,7 @@ class AlienInvasion:
                 self._update_bullets()
                 self._update_aliens()
                 self._game_over()
-            
+
             self._update_screen()
 
     def _check_events(self):
@@ -62,15 +61,14 @@ class AlienInvasion:
             self._start_game()
 
     def _start_game(self):
-            self.stats.reset_stats()
-            self.stats.game_active = True
+        self.stats.reset_stats()
+        self.stats.game_active = True
 
-            self.aliens.empty()
-            self.bullets.empty()
-
-            self._create_fleet()
-            self.ship.center_ship()
-            pygame.mouse.set_visible(False)
+        self.aliens.empty()
+        self.bullets.empty()
+        self._create_fleet()
+        self.ship.center_ship()
+        pygame.mouse.set_visible(False)
 
     def _check_keydown_events(self, event):
 
@@ -113,15 +111,14 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
         self._check_bullet_alien_collision()
-      
 
     def _check_bullet_alien_collision(self):
-        
 
-        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True)
         if collisions:
-            self.stats.dead_aliens +=1
-            print(f"Zabito: {self.stats.dead_aliens}")     
+            self.stats.dead_aliens += 1
+            print(f"Zabito: {self.stats.dead_aliens}")
 
         if not self.aliens:
             self.bullets.empty()
@@ -145,7 +142,8 @@ class AlienInvasion:
         number_aliens_x = available_space_x // (2 * alien_width)
 
         ship_height = self.ship.rect.height
-        available_space_y = (self.settings.screen_height - (3 * alien_height) - ship_height)
+        available_space_y = (self.settings.screen_height -
+                             (3 * alien_height) - ship_height)
         number_rows = available_space_y // (2 * alien_height)
 
         for row_number in range(number_rows):
@@ -193,10 +191,10 @@ class AlienInvasion:
             if aline.rect.bottom >= screen_rect.bottom:
                 self._ship_hit()
                 break
-            
+
     def _game_over(self):
         if self.stats.ship_dead > 3:
-            print("Game over")             
+            print("Game over")
 
     def _update_screen(self):
 
@@ -212,7 +210,6 @@ class AlienInvasion:
             self.play_button.draw_button()
 
         pygame.display.flip()
-
 
 
 if __name__ == '__main__':
