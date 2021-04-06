@@ -4,7 +4,7 @@ from time import sleep
 import pygame
 from settings import Settings
 from game_stats import GameStats
-from button import Button
+from button import Button, LevelButton
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -27,9 +27,13 @@ class AlienInvasion:
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.level_buttons = [LevelButton(self, "Poziom 1", 1), LevelButton(self, "Poziom 2", 2), LevelButton(self, "Poziom 3", 3)]
 
         self._create_fleet()
         self.play_button = Button(self, "Gra")
+
+    
+
 
     def run_game(self):
         while True:
@@ -50,6 +54,7 @@ class AlienInvasion:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 self._check_play_button(mouse_pos)
+                self._check_level_buttons(mouse_pos)
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
@@ -58,13 +63,32 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            #self.settings.initialize_dynamic_settings()
+            #self._check_level_buttons(mouse_pos)
+            self.settings.increase_speed()
             self._start_game()
+
+    def _check_level_buttons(self, mouse_pos):
+
+        if self.level_buttons[0].rect.collidepoint(mouse_pos):
+            self.level_buttons[0].setclicked()
+            self.settings.speed_upscale = 1
+        elif self.level_buttons[1].rect.collidepoint(mouse_pos):
+            self.level_buttons[1].setclicked()
+            self.settings.speed_upscale = 1.3
+           
+        elif self.level_buttons[2].rect.collidepoint(mouse_pos):
+            self.level_buttons[2].setclicked()
+            self.settings.speed_upscale = 1.75
+           
+        
 
     def _start_game(self):
         self.stats.reset_stats()
         self.stats.game_active = True
 
         self.aliens.empty()
+        #self.level_buttons()
         self.bullets.empty()
         self._create_fleet()
         self.ship.center_ship()
@@ -119,10 +143,12 @@ class AlienInvasion:
         if collisions:
             self.stats.dead_aliens += 1
             print(f"Zabito: {self.stats.dead_aliens}")
+            #print(self.settings.ship_speed)
 
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _update_aliens(self):
         self._check_fleet_edges()
@@ -208,6 +234,11 @@ class AlienInvasion:
 
         if not self.stats.game_active:
             self.play_button.draw_button()
+            for level_button in self.level_buttons:
+                level_button.draw_button()
+
+         
+
 
         pygame.display.flip()
 
