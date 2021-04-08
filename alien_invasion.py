@@ -33,11 +33,9 @@ class AlienInvasion:
         self.level_buttons[0].setclicked()
 
         self._create_fleet()
-        self.play_button = Button(self, "Gra")
+        self.play_button = Button(self, "Szczelej go!")
 
     
-
-
     def run_game(self):
         while True:
             self._check_events()
@@ -76,21 +74,25 @@ class AlienInvasion:
 
     def _check_level_buttons(self, mouse_pos):
 
-        if self.level_buttons[0].rect.collidepoint(mouse_pos):
+        level_normal = self.level_buttons[0].rect.collidepoint(mouse_pos)
+        if level_normal:
             self.level_buttons[0].setclicked()
             self.level_buttons[1].setunclicked()
             self.level_buttons[2].setunclicked()
-            self.settings.speed_upscale = 1
             self.settings.score_scale = 1
-
-        elif self.level_buttons[1].rect.collidepoint(mouse_pos):
+            self.settings.speed_upscale = 1.2
+            
+ 
+        level_medium = self.level_buttons[1].rect.collidepoint(mouse_pos)
+        if level_medium:
             self.level_buttons[1].setclicked()
             self.level_buttons[0].setunclicked()
             self.level_buttons[2].setunclicked()
             self.settings.speed_upscale = 1.3
             self.settings.score_scale = 1.5
-           
-        elif self.level_buttons[2].rect.collidepoint(mouse_pos):
+
+        level_hard = self.level_buttons[2].rect.collidepoint(mouse_pos)
+        if level_hard:
             self.level_buttons[2].setclicked()
             self.level_buttons[0].setunclicked()
             self.level_buttons[1].setunclicked()
@@ -168,12 +170,17 @@ class AlienInvasion:
             #print(f"Zabito: {self.stats.dead_aliens}")
 
         if not self.aliens:
-            self.bullets.empty()
-            self._create_fleet()
-            self.settings.increase_speed()
+            self.start_new_level()
+            
+    def start_new_level(self):
 
-            self.stats.level +=1
-            self.sb.prep_level()
+        self.bullets.empty()
+        self._create_fleet()
+        self.settings.increase_speed()
+        if level_normal:
+            self.settings.alien_points = 2
+        self.stats.level +=1
+        self.sb.prep_level()
 
     def _update_aliens(self):
         self._check_fleet_edges()
@@ -181,7 +188,7 @@ class AlienInvasion:
 
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
             self.stats.ship_dead += 1
-            print(f"Poniesiono {self.stats.ship_dead} śmierci")
+            #print(f"Poniesiono {self.stats.ship_dead} śmierci")
             self._ship_hit()
             #print("ALERT! Statek został trafiony!!!")
         self._check_aliens_bottom()
@@ -224,7 +231,7 @@ class AlienInvasion:
         if self.stats.ships_left > 0:
             self.stats.ships_left -= 1
             self.sb.prep_ships()
-            print(self.stats.ships_left)
+            #print(self.stats.ships_left)
 
             self.aliens.empty()
             self.bullets.empty()

@@ -15,8 +15,8 @@ class Ship(Sprite):
         
 
         self.rect.midbottom = self.screen_rect.midbottom
-        print('const')
-        print(self.rect)
+        #print('const')
+        #print(self.rect)
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
         self.moving_right = False
